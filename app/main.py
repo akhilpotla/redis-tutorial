@@ -2,6 +2,8 @@ import uvicorn
 from fastapi import FastAPI, status
 import redis
 
+from app.cache import get_cached_url
+from app.models import Url
 from app.redis import r
 
 app = FastAPI()
@@ -25,6 +27,16 @@ async def redis_check():
     except redis.exceptions.ConnectionError as e:
         print("Error occurred while pinging Redis:", e)
         return {"status": "Redis is not running!"}
+
+
+@app.post("/urls")
+async def add_urls(url: Url):
+    value = get_cached_url(url)
+    if value:
+        return value
+    else:
+        job_id = enqueue_url(url)
+        return job_id
 
 
 if __name__ == "__main__":
