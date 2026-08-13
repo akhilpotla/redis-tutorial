@@ -4,6 +4,7 @@ import redis
 
 from app.cache import get_cached_url
 from app.models import Url
+from app.queue import enqueue_url
 from app.redis import r
 
 app = FastAPI()
