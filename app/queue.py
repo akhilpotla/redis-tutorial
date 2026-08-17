@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime
 
@@ -7,8 +8,9 @@ queue_name = "jobs"
 
 
 async def enqueue_url(url: str):
-    job_id = uuid.UUID(url)
-    r.lpush(queue_name, {"url": url, "job_id": job_id})
+    job_id = uuid.uuid5(uuid.NAMESPACE_URL, url)
+    json_string = json.dumps({"url": url, "job_id": str(job_id)})
+    r.lpush(queue_name, json_string)
     key_name = f"job:{job_id}"
     created_at = datetime.now().timestamp()
     r.hset(key_name, "status", "queue")

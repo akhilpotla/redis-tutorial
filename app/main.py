@@ -1,3 +1,4 @@
+import asyncio
 import uvicorn
 from fastapi import FastAPI, status
 import redis
@@ -32,11 +33,12 @@ async def redis_check():
 
 @app.post("/urls")
 async def add_urls(url: Url):
-    value = get_cached_url(url)
+    url_str = url.url
+    value = await get_cached_url(url_str)
     if value:
         return value
     else:
-        job_id = enqueue_url(url)
+        job_id = await enqueue_url(url_str)
         return job_id
 
 
