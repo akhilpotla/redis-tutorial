@@ -3,6 +3,7 @@ import redis
 
 from worker.worker import get_url_metadata
 
+cache_ttl = 5 * 60
 r = redis.Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
 try:
@@ -11,9 +12,14 @@ try:
         _, job = r.brpop("jobs")
         job_dict = json.loads(job)
         url = job_dict["url"]
-        status_code, title = get_url_metadata(url)
         key_name = f"url:metadata:{url}"
+        r.hset(key_name, "status", "processing")
+        status_code, title = get_url_metadata(url)
         r.hset(key_name, "title", title)
         r.hset(key_name, "status_code", status_code)
+        r.hset(key_name, "status", "complete")
+        r.set(
+            url, json.dumps({"title": title, "status_code": status_code}), ex=cache_ttl
+        )
 except Exception as e:
     print(f"Error: {e}")
