@@ -15,9 +15,7 @@ try:
         key_name = f"url:metadata:{url}"
         r.hset(key_name, "status", "processing")
         status_code, title = get_url_metadata(url)
-        status = "complete"
-        if status_code >= 400:
-            status = "failed"
+        status = "failed" if status_code >= 400 else "complete"
         r.hset(key_name, "title", title)
         r.hset(key_name, "status_code", status_code)
         r.hset(key_name, "status", status)
