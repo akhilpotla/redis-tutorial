@@ -6,7 +6,7 @@ def get_url_metadata(url: str):
     try:
         response = httpx.get(url)
         status_code = response.status_code
-        if status_code >= 300:
+        if status_code >= 400:
             return (status_code, None)
         soup = BeautifulSoup(response.text, "html.parser")
         title = soup.title.string

@@ -15,9 +15,12 @@ try:
         key_name = f"url:metadata:{url}"
         r.hset(key_name, "status", "processing")
         status_code, title = get_url_metadata(url)
+        status = "complete"
+        if status_code >= 400:
+            status = "failed"
         r.hset(key_name, "title", title)
         r.hset(key_name, "status_code", status_code)
-        r.hset(key_name, "status", "complete")
+        r.hset(key_name, "status", status)
         r.set(
             url, json.dumps({"title": title, "status_code": status_code}), ex=cache_ttl
         )
