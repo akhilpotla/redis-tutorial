@@ -9,5 +9,6 @@ def cache_url(url: str, metadata: dict):
 
 
 async def get_cached_url(url: str):
-    value = r.get(url)
-    return eval(value) if value else None
+    key_name = f"url:metadata:{url}"
+    value = r.hgetall(key_name)
+    return value if value else None
