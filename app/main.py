@@ -1,9 +1,10 @@
 import asyncio
 import uvicorn
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import JSONResponse
 import redis
 
-from app.cache import get_cached_url
+from app.cache import get_cached_url, get_job_status
 from app.models import Url
 from app.queue import enqueue_url
 from app.redis import r
@@ -40,6 +41,16 @@ async def add_urls(url: Url):
     else:
         job_id = await enqueue_url(url_str)
         return job_id
+
+
+@app.get("/job/{job_id}")
+async def get_job(job_id: str):
+    s = await get_job_status(job_id)
+    if not s:
+        return HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Job ID not found"
+        )
+    return s
 
 
 if __name__ == "__main__":

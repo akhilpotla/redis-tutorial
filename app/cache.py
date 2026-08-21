@@ -12,3 +12,9 @@ async def get_cached_url(url: str):
     key_name = f"url:metadata:{url}"
     value = r.hgetall(key_name)
     return value if value else None
+
+
+async def get_job_status(job_id: str):
+    key_name = f"job:{job_id}"
+    status = r.hget(key_name, "status")
+    return status

@@ -13,7 +13,7 @@ async def enqueue_url(url: str):
     r.lpush(queue_name, json_string)
     key_name = f"job:{job_id}"
     created_at = datetime.now().timestamp()
-    r.hset(key_name, "status", "queue")
+    r.hset(key_name, "status", "queued")
     r.hset(key_name, "url", url)
     r.hset(key_name, "created_at", created_at)
     return job_id

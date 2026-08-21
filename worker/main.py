@@ -12,13 +12,15 @@ try:
         _, job = r.brpop("jobs")
         job_dict = json.loads(job)
         url = job_dict["url"]
-        key_name = f"url:metadata:{url}"
-        r.hset(key_name, "status", "processing")
+        job_id = job_dict["job_id"]
+        url_key_name = f"url:metadata:{url}"
+        job_id_key_name = f"job:{job_id}"
+        r.hset(job_id_key_name, "status", "processing")
         status_code, title = get_url_metadata(url)
         status = "failed" if status_code >= 400 else "complete"
-        r.hset(key_name, "title", title)
-        r.hset(key_name, "status_code", status_code)
-        r.hset(key_name, "status", status)
+        r.hset(url_key_name, "title", title)
+        r.hset(url_key_name, "status_code", status_code)
+        r.hset(job_id_key_name, "status", status)
         r.set(
             url, json.dumps({"title": title, "status_code": status_code}), ex=cache_ttl
         )
